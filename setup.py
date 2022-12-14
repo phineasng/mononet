@@ -79,6 +79,11 @@ setup(
         "seaborn",
         "pandas",
         "alibi",
-        "causal-learn"
+        "causal-learn",
+        "pytorch-lightning",
+        "medmnist",
+        "shap",
+        "captum",
+        "lime"
     ],
 )
