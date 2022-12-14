@@ -6,7 +6,7 @@ from torch import nn
 
 class ResidualMonotonicCNN1(NNBaseClass):
     def __init__(self, nclasses, shape=(28, 28), nchannels=3, lr=0.001, optimizer='sgd', with_monotonic=True):
-        super(ResidualMonotonicCNN1, self).__init__(lr=lr, optimizer=optimizer)
+        super(ResidualMonotonicCNN1, self).__init__(lr=lr, optimizer=optimizer, n_class=nclasses)
         self._shape = shape
         self._nchannels = nchannels
         self._nclasses = nclasses

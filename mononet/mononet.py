@@ -112,11 +112,11 @@ class MonotonicConv2d(nn.Module):
 
 
 class NNBaseClass(LightningModule):
-    def __init__(self, lr: float = 0.001, optimizer='adam'):
+    def __init__(self, lr: float = 0.001, optimizer='adam', n_class=-1):
         super().__init__()
         self._lr = lr
         self._optimizer = optimizer
-        self.accuracy = torchmetrics.Accuracy()
+        self.accuracy = torchmetrics.Accuracy(task="multiclass", num_classes=n_class)
 
     def configure_optimizers(self):
         if self._optimizer == 'adam':
