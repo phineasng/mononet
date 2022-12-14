@@ -65,9 +65,9 @@ def plot_training_progress(model_):
     plt.close()
 
 
-def plot_ks_across_layers(df_):
-    if not os.path.exists(save_path + '/Stat_ana_activation_patterns/'):
-        os.makedirs(save_path + '/Stat_ana_activation_patterns/')
+def plot_ks_across_layers(df_, perc=0.2):
+    if not os.path.exists(save_path + f'/{perc}/Stat_ana_activation_patterns/'):
+        os.makedirs(save_path + f'/{perc}/Stat_ana_activation_patterns/')
     plt.figure(figsize=(13, 9))
     ax = sns.pointplot(x="layer", y="value", hue="variable",
                        data=df_, ci=None)
@@ -77,15 +77,15 @@ def plot_ks_across_layers(df_):
     ax.set_title('Average KS score across layers')
     ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 
-    plt.savefig(save_path + '/Stat_ana_activation_patterns/plots_KS_score across layers.eps', format='eps', dpi=300,
+    plt.savefig(save_path + f'/{perc}/Stat_ana_activation_patterns/plots_KS_score across layers.eps', format='eps', dpi=300,
                 bbox_inches='tight')
-    plt.show()
+    plt.show(block=False)
 
 
 def analysis_by_neuron(h_values, idx_neuron, task, X_input, y_input, perc=0.2):
     i = idx_neuron
-    if not os.path.exists(save_path + '/Stat_ana_activation_patterns/Violin_plots/'):
-        os.makedirs(save_path + '/Stat_ana_activation_patterns/Violin_plots/')
+    if not os.path.exists(save_path + f'/{perc}/Stat_ana_activation_patterns/Violin_plots/'):
+        os.makedirs(save_path + f'/{perc}/Stat_ana_activation_patterns/Violin_plots/')
     if not torch.is_tensor(h_values):
         h_values = torch.from_numpy(h_values).clone().to(torch.float32)
     h_i = h_values[:, i]
@@ -119,6 +119,7 @@ def analysis_by_neuron(h_values, idx_neuron, task, X_input, y_input, perc=0.2):
         return stats_KS, pvalues_KS
 
     if task == 'violin_plot':
+        biomarkers = list(df.columns[:-1])
         df_top_bottom_melt = pd.melt(df_top_bottom, id_vars=['label'], ignore_index=False)
         df_top_bottom_melt['label'] = df_top_bottom_melt['label'].astype("category")
         df_top_bottom_melt['variable'] = df_top_bottom_melt['variable'].astype("category")
@@ -127,22 +128,22 @@ def analysis_by_neuron(h_values, idx_neuron, task, X_input, y_input, perc=0.2):
         plt.figure(figsize=(8, 5))
         sns.violinplot(x="variable", y="value", hue="label",
                        data=df_top_bottom_melt, palette="Set2", split=True,
-                       scale="count")
+                       scale="count", order=biomarkers)
         plt.legend(title='', fontsize=12)
         plt.xlabel('', fontsize=14)
         plt.ylabel('Biomarker distribution', fontsize=16)
         # plt.title('Interpretable Neuron {}'.format(i + 1), fontsize=16)
         plt.tick_params(axis='y', which='major', labelsize=12)
         plt.tick_params(axis='x', which='major', labelsize=14, labelrotation=45)
-        plt.savefig(save_path + '/Stat_ana_activation_patterns/Violin_plots/violin_plot_neuron_{}.eps'.format(i + 1),
+        plt.savefig(save_path + f'/{perc}/Stat_ana_activation_patterns/Violin_plots/violin_plot_neuron_{i+1}.eps',
                     format='eps', dpi=300, bbox_inches='tight')
-        plt.show()
+        plt.show(block=False)
         plt.close()
 
 
-def plots_distance_measure(df_measure, measure, p_values):
-    if not os.path.exists(save_path + '/Stat_ana_activation_patterns/KS_neuron/'):
-        os.makedirs(save_path + '/Stat_ana_activation_patterns/KS_neuron/')
+def plots_distance_measure(df_measure, measure, p_values, perc=0.2):
+    if not os.path.exists(save_path + f'/{perc}/Stat_ana_activation_patterns/KS_neuron/'):
+        os.makedirs(save_path + f'/{perc}/Stat_ana_activation_patterns/KS_neuron/')
 
     d = pd.melt(df_measure, id_vars=['neuron'], ignore_index=False)
     idx_sort = np.argsort(df_measure.iloc[:, :-1], axis=1)
@@ -161,10 +162,10 @@ def plots_distance_measure(df_measure, measure, p_values):
         plt.tick_params(axis='y', which='major', labelsize=12)
         plt.tick_params(axis='x', which='major', labelsize=14, labelrotation=45)
         plt.tight_layout()
-        plt.savefig(save_path + f'/Stat_ana_activation_patterns/KS_neuron/KS_scores_neuron_{i + 1}.eps', format='eps',
+        plt.savefig(save_path + f'/{perc}/Stat_ana_activation_patterns/KS_neuron/KS_scores_neuron_{i + 1}.eps', format='eps',
                     dpi=300,
                     bbox_inches='tight')
-        plt.show()
+        plt.show(block=False)
         plt.close()
 
     plt.figure(figsize=(7, 5))
@@ -174,9 +175,9 @@ def plots_distance_measure(df_measure, measure, p_values):
     plt.tick_params(axis='y', which='major', labelsize=12)
     plt.tick_params(axis='x', which='major', labelsize=14, labelrotation=45)
     plt.tight_layout()
-    plt.savefig(save_path + '/Stat_ana_activation_patterns/KS_scores_average.eps', format='eps', dpi=300,
+    plt.savefig(save_path + f'/{perc}/Stat_ana_activation_patterns/KS_scores_average.eps', format='eps', dpi=300,
                 bbox_inches='tight')
-    plt.show()
+    plt.show(block=False)
     plt.close()
 
     palette_13 = sns.color_palette(
@@ -197,18 +198,18 @@ def plots_distance_measure(df_measure, measure, p_values):
     axs[1].tick_params(axis='y', which='major', labelsize=12)
     axs[1].tick_params(axis='x', which='major', labelsize=14)
 
-    plt.savefig(save_path + '/Stat_ana_activation_patterns/KS_scores_average_&_neuron.eps', format='eps', dpi=300,
+    plt.savefig(save_path + f'/{perc}/Stat_ana_activation_patterns/KS_scores_average_&_neuron.eps', format='eps', dpi=300,
                 bbox_inches='tight')
-    plt.show()
+    plt.show(block=False)
     plt.close()
 
 
-def compute_ks(h_values_, X_input_, y_input_):
+def compute_ks(h_values_, X_input_, y_input_, perc=0.2):
     df_stats_KS_ = pd.DataFrame(columns=list(df.columns[:-1]))
     df_pvalues_KS_ = pd.DataFrame(columns=list(df.columns[:-1]))
     for i in range(NB_NEURON_INTER_LAYER):
         stat_ks, pvalues_ks = analysis_by_neuron(h_values=h_values_, idx_neuron=i, task='KS_stat',
-                                                 X_input=X_input_, y_input=y_input_)
+                                                 X_input=X_input_, y_input=y_input_, perc=perc)
         df_stats_KS_.loc[i] = stat_ks
         df_pvalues_KS_.loc[i] = pvalues_ks
     df_stats_KS_['neuron'] = np.arange(8) + 1
@@ -216,10 +217,10 @@ def compute_ks(h_values_, X_input_, y_input_):
     return df_stats_KS_, df_pvalues_KS_
 
 
-def violin_plots(h_values_, X_input_, y_input_):
+def violin_plots(h_values_, X_input_, y_input_, perc=0.2):
     for i in range(NB_NEURON_INTER_LAYER):
         analysis_by_neuron(h_values=h_values_, idx_neuron=i, task='violin_plot',
-                           X_input=X_input_, y_input=y_input_)
+                           X_input=X_input_, y_input=y_input_, perc=perc)
 
 
 def visualize_importances_all_neurons(feature_names, importances, title="Average Feature Importances",
@@ -328,7 +329,7 @@ def monotonic_f(h_and_class_, neuron_, target_class_, fixed_class_, model_):
     # make a plot with different y-axis using second axis object
     ax2.plot(xs, density(xs), color="tab:orange")
     ax2.set_ylabel("Density", color="tab:orange", fontsize=12)
-    plt.show()
+    plt.show(block=False)
     # save the plot as a file
     fig.savefig(save_path + '/Monotonic_function/mono_f_neuron{}_targetclass{}_fixedclass{}.eps'
                 .format(neuron_, target_class_ - 1, fixed_class_ - 1), format='eps', dpi=300, bbox_inches='tight')
@@ -349,7 +350,7 @@ def plot_clusterings(df_1, df_2):
     plt.tight_layout()
     plt.savefig(save_path + '/information_flow/adjusted_mutual_info_score.eps', format='eps', dpi=300,
                 bbox_inches='tight')
-    plt.show()
+    plt.show(block=False)
     plt.close()
 
 
@@ -398,7 +399,7 @@ def plot_activation_mean(df_average, abs, bool_legend=False):
         plt.savefig(save_path + '/activation_across_layers/plots_mean_activation_across_layers.eps', format='eps',
                     dpi=300,
                     bbox_inches='tight')
-    plt.show()
+    plt.show(block=False)
     plt.close()
 
 
@@ -453,7 +454,7 @@ def plot_entropy(df_, meas_):
     plt.tight_layout()
     plt.savefig(save_path + f'/activation_across_layers/{meas_}_covariance.eps', format='eps', dpi=300,
                 bbox_inches='tight')
-    plt.show()
+    plt.show(block=False)
     plt.close()
 
 
@@ -479,6 +480,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--compute_shap_values', action='store_true')
     parser.add_argument('--analysis_with_violin_plots', action='store_true')
+    parser.add_argument('--percentage4analysis', type=float, default=0.2)
     parser.add_argument('--analysis_clustering', action='store_true')
     parser.add_argument('--information_analysis', action='store_true')
 
@@ -494,6 +496,7 @@ if __name__ == '__main__':
     plot_violin = args.analysis_with_violin_plots
     clustering = args.analysis_clustering
     information_analysis = args.information_analysis
+    percentage4stat_analysis = args.percentage4analysis
 
     ####################################################################################################################
     # --------------------------------------- DATA PREPARATION AND VISUALIZATION ---------------------------------------
@@ -515,7 +518,7 @@ if __name__ == '__main__':
         table.set_fontsize(9)
         plt.savefig(os.path.join(save_root, 'class_distribution.eps'), format='eps', dpi=300,
                     bbox_inches='tight')
-        plt.show()
+        plt.show(block=False)
         plt.close()
 
     # Encode the classes form 0 to 19 instead of 1-20
@@ -629,6 +632,7 @@ if __name__ == '__main__':
     ####################################################################################################################
 
     # Selection of the data we will use
+    # subset = 'test'
     subset = 'test'
     X_subset = eval('X_{}'.format(subset))
     y_subset = eval('y_{}'.format(subset))
@@ -662,8 +666,8 @@ if __name__ == '__main__':
 
     idx_all_class_redu = [item for sublist in list(idx_by_class_reduced.values()) for item in sublist]
 
-    X_reduced = X_subset[idx_all_class_redu]
-    y_reduced = y_subset[idx_all_class_redu]
+    X_reduced = X_subset # X_subset[idx_all_class_redu]
+    y_reduced = y_subset # y_subset[idx_all_class_redu]
     h_values_reduced = model.unconstrained_block(X_reduced)
     y_pred_reduced = model(X_reduced)
     y_pred_reduced_softmax = torch.log_softmax(y_pred_reduced, dim=1)
@@ -717,17 +721,25 @@ if __name__ == '__main__':
         for name in name_layers:
             values_layers = dict_values_layers[name]
             dict_df_stats_KS[name], dict_df_pvalues_KS[name] = compute_ks(h_values_=values_layers, X_input_=X_subset,
-                                                                          y_input_=y_subset)
+                                                                          y_input_=y_subset,
+                                                                          perc=percentage4stat_analysis)
+
+            dict_df_stats_KS[name].to_csv(
+                save_path + f'/{percentage4stat_analysis}/Stat_ana_activation_patterns/{name}_ks_scores.csv'
+            )
+            dict_df_pvalues_KS[name].to_csv(
+                save_path + f'/{percentage4stat_analysis}/Stat_ana_activation_patterns/{name}_ks_pvalues.csv'
+            )
             df_temp = pd.melt(dict_df_stats_KS[name], id_vars=['neuron'], ignore_index=False)[['variable', 'value']]
             df_temp['layer'] = [name] * len(df_temp)
             all_stat_KS.append(df_temp)
 
         df_all_stat_KS = pd.concat(all_stat_KS, ignore_index=True)
 
-        plot_ks_across_layers(df_=df_all_stat_KS)
+        plot_ks_across_layers(df_=df_all_stat_KS, perc=percentage4stat_analysis)
 
         # Violin plots for the top and bottom distribution of the input (the ordering is done wrt the h_values)
-        violin_plots(h_values_=h_values, X_input_=X_subset, y_input_=y_subset)
+        violin_plots(h_values_=h_values, X_input_=X_subset, y_input_=y_subset, perc=percentage4stat_analysis)
         plots_distance_measure(df_measure=dict_df_stats_KS['interpretable'],
                                p_values=dict_df_pvalues_KS['interpretable'], measure='KS')
 
